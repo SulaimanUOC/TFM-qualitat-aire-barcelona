@@ -19,13 +19,6 @@
 *.zip
 *.tar
 
-# HTML i figures generades automàticament
-*.html
-figure/
-
-# Fitxers específics de notebooks
-*.nb.html
-*.pdf
 
 # Dades grans o no versionables (personalitzable)
 data/raw/contaminants/dades_qualitat_aire_1991_2025.csv
