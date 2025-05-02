@@ -1,0 +1,5 @@
+codi_estacio,nom_estacio,codi_tipus,latitud,longitud,geocoded_column.type,geocoded_column.coordinates,emplacament,altitud,codi_municipi,nom_municipi,codi_comarca,nom_comarca,codi_provincia,nom_provincia,codi_xarxa,nom_xarxa,codi_estat_ema,nom_estat_ema,data_inici,:@computed_region_bh64_c7uy,:@computed_region_wvic_k925,data_fi,...24
+X2,Barcelona - Zoo,A,41.38943,2.18847,Point,c(2.18847,41.38943),Zoo,7,80193,Barcelona,13,Barcelonès,8,Barcelona,1,XEMA,1,Desmantellada,2006-09-22T00:00:00Z,512,29,2024-10-03T00:00:00Z
+X4,Barcelona - el Raval,A,41.3839,2.16775,Point,c(2.16775,41.3839),"Facultat de Geografia i Història. c. Montalegre nº6, 6a",33,80193,Barcelona,13,Barcelonès,8,Barcelona,1,XEMA,2,Operativa,2006-10-11T00:00:00Z,512,29,NA
+D5,Barcelona - Observatori Fabra,A,41.41864,2.12379,Point,c(2.12379,41.41864),Observatori Fabra,411,80193,Barcelona,13,Barcelonès,8,Barcelona,1,XEMA,2,Operativa,1995-11-03T00:00:00Z,512,29,NA
+X8,Barcelona - Zona Universitària,A,41.37919,2.1054,Point,c(2.1054,41.37919),Pistes UB,79,80193,Barcelona,13,Barcelonès,8,Barcelona,1,XEMA,2,Operativa,2008-04-17T00:00:00Z,117,29,NA

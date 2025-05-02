@@ -1,0 +1,12 @@
+codi_eoi,nom_estacio,tipus_estacio,area_urbana,altitud,latitud,longitud
+08019003,Barcelona (St. Gervasi),traffic,urban,75,41.401128,2.146942
+08019004,Barcelona (Poblenou),background,urban,3,41.403878,2.204501
+08019039,Barcelona (Sagrera),traffic,urban,12,41.422213,2.190555
+08019042,Barcelona (Sants),background,urban,35,41.378783,2.133099
+08019043,Barcelona (Eixample),traffic,urban,26,41.385315,2.1538
+08019044,Barcelona (Gràcia - Sant Gervasi),traffic,urban,57,41.398722,2.153399
+08019050,Barcelona (Ciutadella),background,urban,7,41.386403,2.187398
+08019054,Barcelona (Parc Vall Hebron),background,urban,136,41.426109,2.148002
+08019056,Barcelona (Torre Girona),background,urban,81,41.389726,2.115836
+08019057,Barcelona (Palau Reial),background,urban,81,41.387492,2.1152
+08019058,Barcelona (Observatori Fabra),background,peri-urban,415,41.418431,2.123897
