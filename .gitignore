@@ -1,0 +1,44 @@
+# Fitxers i carpetes habituals d'R
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Fitxers d’output de R Markdown
+*.utf8.md
+*.knit.md
+*.nb.html
+
+# Fitxers temporals
+*.tmp
+*.log
+*.aux
+*.out
+*.toc
+*.gz
+*.zip
+*.tar
+
+# HTML i figures generades automàticament
+*.html
+figure/
+
+# Fitxers específics de notebooks
+*.nb.html
+*.pdf
+
+# Dades grans o no versionables (personalitzable)
+data/raw/contaminants/dades_qualitat_aire_1991_2025.csv
+
+# Arxius del sistema
+.DS_Store
+Thumbs.db
+
+# Fitxers d'AGOL o que només són de suport local
+*.lyrx
+*.sd
+*.aprx
+
+# Altres
+*.bak
+*.old
