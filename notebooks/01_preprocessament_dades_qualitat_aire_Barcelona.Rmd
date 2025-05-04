@@ -1,5 +1,5 @@
 ---
-title: '01: Preprocessament inicial de les dades'
+title: '01: Preprocessament de les dades'
 author: "Soulaiman el Hamri"
 date: "`r Sys.Date()`"
 output:
@@ -18,10 +18,12 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 
 # Llistem les llibreries necessàries
-librerias <- c("ggplot2", "dplyr", "readr", "car", "pROC", "nnet", "tidyr", "VIM", "ggcorrplot", "GGally", "caret", "ggpubr", "knitr", "tidyverse", "kableExtra", "lubridate", "jsonlite")
+llibreries <- c("ggplot2", "dplyr", "readr", "car", "pROC", "nnet",
+               "tidyr", "VIM", "ggcorrplot", "GGally", "caret", "ggpubr", 
+               "knitr", "tidyverse", "kableExtra", "lubridate", "jsonlite")
 
-# Funció per carregar i instalar librerías si es necesario
-cargar_librerias <- function(librerias) {
+# Funció per carregar i instalar
+carregar_llibreries <- function(librerias) {
   for (paquete in librerias) {
     if (!requireNamespace(paquete, quietly = TRUE)) {
       install.packages(paquete, dependencies = TRUE)
@@ -30,8 +32,8 @@ cargar_librerias <- function(librerias) {
   }
 }
 
-# Cargamos todas las librerías
-cargar_librerias(librerias)
+# Carreguem totes les llibreríes
+carregar_llibreries(llibreries)
 ```
 
 # 1. Introducció
@@ -40,48 +42,45 @@ Aquest document descriu el **preprocessament inicial de les dades meteorològiqu
 
 ## 1.1. Fonts de dades
 
--   **Dades meteorològiques (2021–2025)**: registres diaris i extrems de Meteocat.
+-   **Dades meteorològiques (1991–2025)**: registres diaris de les estacions meteorològiques de Barcelona.
 
 -   **Metadades meteorològiques**: descripcions de cada acrònim i unitats.
 
 -   **Fitxer d’estacions**: ubicació i municipi de cada estació meteorològica.
 
--   **Dades de qualitat de l’aire**: mesuraments històrics dels principals contaminants (NO2, PM10, PM2.5, O3, etc.).
+-   **Dades de qualitat de l’aire**: registres històrics dels principals contaminants (NO2, PM10, PM2.5, O3, etc.).
 
 # 2. Descripció de les dades
 
 ## 2.1. Dades meteorològiques (Meteocat)
 
-Els conjunts de dades meteorològiques corresponen als anys **2021, 2022, 2023, 2024 i 2025**, i han estat descarregats del portal de dades obertes de la Generalitat de Catalunya. Cada fitxer conté **observacions diàries o valors extrems** mesurats per les estacions automàtiques (XEMA) gestionades per Meteocat.
+Els conjunts de dades meteorològiques han estat descarregats del portal de dades obertes de la Generalitat de Catalunya. Cada fitxer conté **observacions diàries** mesurades per les estacions automàtiques de Barcelona (XEMA). A Barcelona hi ha 4 estacions operatives i tenim un fitxer csv per cada estació.
 
 Les columnes principals són:
 
--   **`DATA_LECTURA`**: Data (i hora opcional) de la mesura, en format `"YYYY-MM-DD"` o `"YYYY-MM-DD HH:MM:SS"`.
+-   **DATA:** Data de la mesura, en format `"YYYY-MM-DD"` o `"YYYY-MM-DD HH:MM:SS"`.
 
--   **`DATA_EXTREM`**: En cas de valors extrems (p. ex., temperatura màxima), indica la data i hora exactes en què es va produir el valor.
+-   **CODI_ESTACIO:** Codi identificador únic de l’estació meteorològica.
 
--   **`CODI_ESTACIO`**: Codi identificador únic de l’estació meteorològica.
+-   **ACRÒNIM:** Sigla curta que identifica la variable mesurada (ex.: `TM`, `TX`, `HRM`, `PPT`, `PM`...)
 
--   **`ACRÒNIM`**: Sigla curta que identifica la variable mesurada (ex.: `TM`, `TX`, `HRM`, `PPT`, `PM`...)
-
--   **`VALOR`**: Valor mesurat de la variable corresponent.
+-   **VALOR:** Valor mesurat de la variable corresponent.
 
 Aquesta informació es completa amb un fitxer de metadades, que inclou:
 
--   **`ACRÒNIM`**: Coincideix amb el del dataset principal.
+-   **ACRÒNIM:** Coincideix amb el del dataset principal.
 
--   **`NOM_VARIABLE`**: Nom complet de la variable (ex.: "Temperatura mitjana diària").
+-   **NOM_VARIABLE:** Nom complet de la variable (ex.: "Temperatura mitjana diària").
 
--   **`UNITAT`**: Unitat de mesura (ex.: °C, %, mm, hPa).
+-   **UNITAT:** Unitat de mesura (ex.: °C, %, mm, hPa).
 
--   **`CODI_VARIABLE`**: Identificador intern de la variable.
+-   **CODI_VARIABLE:** Identificador intern de la variable.
 
-Exemples de variables meteorològiques rellevants:
+A continuació es mostra una taula amb les variables meteorològiques rellevants:
 
 | ACRÒNIM | NOM VARIABLE                      | UNITAT |
 |---------|-----------------------------------|--------|
 | TM      | Temperatura mitjana diària        | °C     |
-| TX      | Temperatura màxima diària         | °C     |
 | HRM     | Humitat relativa mitjana          | \%     |
 | PPT     | Precipitació acumulada            | mm     |
 | PM      | Pressió atmosfèrica mitjana       | hPa    |
@@ -91,67 +90,77 @@ Aquestes dades són fonamentals per contextualitzar els nivells de contaminació
 
 ## 2.2. Dades de qualitat de l’aire
 
-El conjunt de dades conté registres de **mesures horàries** de concentració de contaminants atmosfèrics des de l’any 1991 fins al 2025. L’origen de les dades és l’administració ambiental catalana i el portal Open Data.
+El conjunt de dades conté registres de **mesures horàries** de concentració de contaminants atmosfèrics des de l’any 1991 fins al 2025. L’origen de les dades és de portal Open Data BCN.
 
 Les columnes principals inclouen:
 
--   **`codi_estacio`**: Codi alfanumèric de l’estació de mesura.
+-   **CODI_ESTACIO**: Codi alfanumèric de l’estació de mesura.
 
--   **`nom_estacio`**: Nom de l’estació (ex.: "Eixample", "Gràcia", "Zona Universitària"...).
+-   **NOM_ESTACIO:** Nom de l’estació (ex.: "Eixample", "Gràcia", "Zona Universitària"...).
 
--   **`data`**: Data de mesura.
+-   **DATA:** Data de mesura.
 
--   **`hora`**: Hora de mesura (de 1 a 24).
+-   **HORA:** Hora de mesura (de 1 a 24).
 
--   **`contaminant`**: Substància mesurada (ex.: `NO2`, `PM10`, `PM2.5`, `O3`).
+-   **CONTAMINANT:** Substància mesurada (ex.: `NO2`, `PM10`, `PM2.5`, `O3`).
 
--   **`valor`**: Valor de concentració horària (normalment en µg/m³).
+-   **VALOR:** Valor de concentració horària (normalment en µg/m³).
 
 Es descarten columnes complementàries com:
 
--   `magnitud`, `codi_ine`, `municipi`, `geocoded_column`, `codi_comarca`, `nom_comarca`
+-   magnitud, codi_ine, municipi, geocoded_column, codi_comarca, nom_comarca
 
 Contaminants d’interès seleccionats:
 
--   **`NO2` (diòxid de nitrogen)**: Indica presència de trànsit intens.
+-   **NO2 (diòxid de nitrogen)**: Indica presència de trànsit intens.
 
--   **`PM10` i `PM2.5` (partícules en suspensió)**: Afavoreixen problemes respiratoris.
+-   **PM10 i PM2.5 (partícules en suspensió)**: Afavoreixen problemes respiratoris.
 
--   **`O3` (ozó troposfèric)**: Forma contaminant secundari amb impactes en salut i vegetació.
+-   **O3 (ozó troposfèric)**: Forma contaminant secundari amb impactes en salut i vegetació.
 
 # 3. Preprocessat
 
 ## 3.1. Dades meteorologiques
 
-Aquest apartat descriu detalladament el procés de preparació inicial de les dades meteorològiques corresponents als anys 2021 a 2025. El flux de treball inclou la lectura dels fitxers, la unificació en un únic conjunt de dades, l’enriquiment amb metadades descriptives, la conversió correcta de dates i el filtratge per seleccionar només les estacions ubicades a Barcelona.
+Aquest apartat descriu detalladament el procés de preparació inicial de les dades meteorològiques corresponents als anys 1995 a 2025. El flux de treball inclou la lectura dels fitxers, la unificació en un únic conjunt de dades, l’enriquiment amb metadades descriptives, la conversió correcta de dates i el filtratge per seleccionar només dades rellevants per a l'anàlisi.
 
-Primerament, farem la lectura dels fitxers anuals
+Primerament, farem la lectura dels fitxers per estacions:
 
 ```{r, warning=FALSE, message=FALSE}
-# Carreguem els fitxers corresponents als anys 2021 a 2025
-df_2021 <- read_csv("../data/raw/meteocat/2021_MeteoCat_Detall_Estacions.csv")
-df_2022 <- read_csv("../data/raw/meteocat/2022_MeteoCat_Detall_Estacions.csv")
-df_2023 <- read_csv("../data/raw/meteocat/2023_MeteoCat_Detall_Estacions.csv")
-df_2024 <- read_csv("../data/raw/meteocat/2024_MeteoCat_Detall_Estacions.csv")
-df_2025 <- read_csv("../data/raw/meteocat/2025_MeteoCat_Detall_Estacions.csv")
+# Forcem que totes les columnes es llegeixin com a text per evitar errors en unir-les
+col_types_forcats <- cols(.default = "c")
+
+# Llegim els CSVs de les estacions de Barcelona des de les seves rutes
+df_D5 <- read_csv("../data/raw/meteocat/dades_estacions/30597_D5.csv",
+                  col_types = col_types_forcats, na = c("", "NA"))
+df_X2 <- read_csv("../data/raw/meteocat/dades_estacions/30597_X2.csv", 
+                  col_types = col_types_forcats, na = c("", "NA"))
+df_X4 <- read_csv("../data/raw/meteocat/dades_estacions/30597_X4.csv", 
+                  col_types = col_types_forcats, na = c("", "NA"))
+df_X8 <- read_csv("../data/raw/meteocat/dades_estacions/30597_X8.csv", 
+                  col_types = col_types_forcats, na = c("", "NA"))
+
 ```
 
-Cada fitxer conté les mateixes columnes i estructura, per tant es poden combinar fàcilment.
-
-A continuació unifiquem els conjunts:
+Un cop llegits, els quatre conjunts s’uneixen en un únic dataframe mitjançant `bind_rows()`. Aquesta operació genera un sol conjunt homogeni, amb totes les observacions agrupades.
 
 ```{r, warning=FALSE, message=FALSE}
 # Unifiquem tots els conjunts de dades en un únic dataframe
-df_all_years <- bind_rows(df_2021, df_2022, df_2023, df_2024, df_2025)
-
-# Mostrem un resum del conjunt complet
-summary(df_all_years)
+df_meteo <- bind_rows(df_D5, df_X2, df_X4, df_X8)
 
 ```
 
-Incorporem les metadades:
+A continuació, es genera un resum estadístic (`summary(df_meteo)`) per identificar possibles inconsistències o valors anòmals.
 
 ```{r, warning=FALSE, message=FALSE}
+# Mostrem un resum del conjunt complet
+summary(df_meteo)
+```
+
+Per entendre i etiquetar correctament les variables (ex. TX = Temperatura màxima, HRM = Humitat mitjana), aquestes metadades són clau per enriquir les observacions i preparar-les per visualització i interpretació.
+
+```{r, warning=FALSE, message=FALSE}
+
 # Carreguem el fitxer de metadades
 df_metadata <- read_csv("../data/raw/meteocat/MeteoCat_Metadades.csv", col_types = cols(
   CODI_VARIABLE = col_double(),
@@ -159,97 +168,24 @@ df_metadata <- read_csv("../data/raw/meteocat/MeteoCat_Metadades.csv", col_types
   UNITAT = col_character(),
   ACRÒNIM = col_character()
 ))
-# Fem la unió per l’acrònim per enriquir les dades amb noms i unitats
-df_enriched <- left_join(df_all_years, df_metadata, by = "ACRÒNIM")
 ```
 
-Aquesta unió afegeix per a cada fila el **nom complet de la variable** i la seva **unitat de mesura**.
-
-```{r, warning=FALSE, message=FALSE}
-df_enriched <- df_enriched %>%
-  mutate(
-    DATA_LECTURA = parse_date_time(DATA_LECTURA, orders = c("ymd")),
-
-    DATA_EXTREM = ifelse(is.na(DATA_EXTREM),
-                         NA_character_,
-                         paste(DATA_LECTURA, DATA_EXTREM)
-                         ),
-    DATA_EXTREM = parse_date_time(DATA_EXTREM, orders = "ymd HMS")
-  )
-```
+La columna de data s’estandarditza al format ISO (`%Y-%m-%dT00:00:00Z`) per garantir compatibilitat amb sistemes com ArcGIS Online i assegurar la correcta ordenació temporal.
 
 ```{r}
-na_summary <- colSums(is.na(df_enriched))
-print(na_summary)
-```
-
-Com es pot observar, **només la columna `DATA_EXTREM` conté valors nuls**, ja que aquesta variable només s’omple en el cas de variables de tipus extrem (com `TX`, `TN`, etc.). Aquest comportament és **esperat i no implica un error de les dades**. La resta de columnes no presenta valors nuls, fet que confirma la bona qualitat del conjunt principal.
-
-```{r, warning=FALSE, message=FALSE}
-
-# Llibreries necessàries
-library(dplyr)
-library(readr)
-
-# Llegim el fitxer d’estacions meteorològiques
-estacions <- read_csv("../data/raw/meteocat/estacions_xema.csv")
-
-# Filtratge per municipi: seleccionem només estacions de Barcelona (codi INE 80193)
-estacions_barcelona <- estacions %>%
-  filter(nom_municipi == 80193)
-
-# Extreiem els codis d’estació com a vector
-codis_barcelona <- estacions_barcelona$codi_estacio %>% unique()
-
-# Mostrem els codis obtinguts per verificació
-print(codis_barcelona)
-
-# Guardem les estacions de Barcelona en un CSV
-write_csv(estacions_barcelona, "../data/processed/meteocat/estacions_barcelona.csv")
-
-# Apliquem el filtratge al dataset meteorològic enriquit
-df_bcn <- df_enriched %>%
-  filter(CODI_ESTACIO %in% codis_barcelona)
-
-# Assegurem-nos que el directori de sortida existeix
-dir.create("../data/processed/meteocat", recursive = TRUE, showWarnings = FALSE)
-
-# Guardem el conjunt filtrat amb només les estacions de Barcelona
-write_csv(df_bcn, "../data/processed/meteocat/meteocat_2021_2025_bcn_processed.csv")
-
-```
-
-També s'han processat les dades meteorológiques de les 4 estacions que hi ha a Barcelona, inlcouen registres històrics de 1995 a 2025.
-
-```{r, warning=FALSE, message=FALSE}
-
-# Forcem que totes les columnes es llegeixin com a text per evitar errors en unir-les
-col_types_forcats <- cols(.default = "c")
-
-# Llegim els CSVs des de les seves rutes
-df_D5 <- read_csv("../data/raw/meteocat/dades_estacions/30597_D5.csv", col_types = col_types_forcats, na = c("", "NA"))
-df_X2 <- read_csv("../data/raw/meteocat/dades_estacions/30597_X2.csv", col_types = col_types_forcats, na = c("", "NA"))
-df_X4 <- read_csv("../data/raw/meteocat/dades_estacions/30597_X4.csv", col_types = col_types_forcats, na = c("", "NA"))
-df_X8 <- read_csv("../data/raw/meteocat/dades_estacions/30597_X8.csv", col_types = col_types_forcats, na = c("", "NA"))
-
-# Unim tots els dataframes en un sol
-df_meteo <- bind_rows(df_D5, df_X2, df_X4, df_X8)
-
-#  Carreguem el fitxer de metadades
-df_metadata <- read_csv("../data/raw/meteocat/MeteoCat_Metadades.csv", col_types = cols(
-  CODI_VARIABLE = col_double(),
-  NOM_VARIABLE = col_character(),
-  UNITAT = col_character(),
-  ACRÒNIM = col_character()
-))
-
-# Variables que tenen columna de 'Data Extrem'
-variables_amb_extrem <- c("TX", "TN", "HRX", "HRN", "PX", "PN", "VVX10")
 
 # Normalitzem la data de lectura
 df_meteo <- df_meteo %>%
   mutate(DATA_LECTURA = dmy(DATA) %>% format("%Y-%m-%dT00:00:00Z"))
+```
 
+Els fitxers meteorològics tenen una estructura de "taula ampla", on cada variable meteorològica és una columna. Per facilitar les operacions d’anàlisi, es transforma a format "longitudinal" o **long format**, on cada fila representa un registre d’una sola variable per dia i estació. Això es fa mitjançant una iteració sobre cada acrònim (ex. TX, HRM, PPT) i es construeix un dataframe agregat.
+
+A més, per a certes variables que tenen una **data extrema** associada (ex. temperatura màxima amb hora), també es processa i incorpora aquesta informació en format ISO 8601.
+
+```{r, warning=FALSE, message=FALSE}
+# Variables que tenen columna de 'Data Extrem'
+variables_amb_extrem <- c("TX", "TN", "HRX", "HRN", "PX", "PN", "VVX10")
 # Transformem a format llarg
 acronims <- df_metadata$ACRÒNIM
 
@@ -260,7 +196,8 @@ resultats <- map_dfr(acronims, function(acronim) {
   if (acronim %in% variables_amb_extrem) {
     col_extrem <- sym(paste0("Data Extrem ", acronim))
     dades <- df_meteo %>%
-      select(DATA_LECTURA, CODI_ESTACIO = EMA, valor = !!col_valor, data_extrem = !!col_extrem)
+      select(DATA_LECTURA, CODI_ESTACIO = EMA, valor = !!col_valor, 
+             data_extrem = !!col_extrem)
   } else {
     dades <- df_meteo %>%
       select(DATA_LECTURA, CODI_ESTACIO = EMA, valor = !!col_valor) %>%
@@ -282,12 +219,29 @@ resultats <- map_dfr(acronims, function(acronim) {
     select(DATA_LECTURA, DATA_EXTREM, CODI_ESTACIO, ACRÒNIM, VALOR)
 }) %>%
   left_join(df_metadata, by = "ACRÒNIM") %>%
-  select(DATA_LECTURA, DATA_EXTREM, CODI_ESTACIO, ACRÒNIM, VALOR, CODI_VARIABLE, NOM_VARIABLE, UNITAT)
+  select(DATA_LECTURA, DATA_EXTREM, CODI_ESTACIO, ACRÒNIM, VALOR, CODI_VARIABLE, 
+         NOM_VARIABLE, UNITAT)
+
+
+```
+
+Es comprova la presència de `NA` per columna amb `colSums(is.na(...))` i es realitza una ordenació final per data, estació i variable (`arrange()`) per garantir una estructura ordenada i fàcilment interpretable.
+
+```{r, warning=FALSE, message=FALSE}
+na_summary <- colSums(is.na(resultats))
+print(na_summary)
 
 #  Ordenem per data, estació i variable
 resultats <- resultats %>%
   arrange(DATA_LECTURA, CODI_ESTACIO, ACRÒNIM)
 
+```
+
+Els valors NA (valors buits) a la columna DATA_EXTREM es deuen al fet que **no totes les variables meteorològiques tenen una data extrema associada**. Això és un comportament esperat i correcte segons la naturalesa de les dades.
+
+Per últim, el resultat és un fitxer `.csv` preparat i net, que conté totes les observacions diàries de les quatre estacions meteorològiques, en format llarg i enriquit amb metadades.
+
+```{r, warning=FALSE, message=FALSE}
 # Guardem el resultat final en CSV
 write_csv(resultats, "../data/processed/meteocat/meteocat_1995_2025_bcn_processed.csv")
 ```
@@ -337,7 +291,8 @@ df_bcn_contaminants <- df_bcn_contaminants %>%
 dir.create("../data/processed/contaminants", recursive = TRUE, showWarnings = FALSE)
 
 # Guardar el dataset filtrat
-write_csv(df_bcn_contaminants, "../data/processed/contaminants/contaminants_bcn_filtrat.csv")
+write_csv(df_bcn_contaminants,
+          "../data/processed/contaminants/contaminants_bcn_filtrat.csv")
 
 ```
 
@@ -349,7 +304,7 @@ Aquest document ha permès dur a terme una primera fase fonamental del projecte:
 
 S’han abordat dues fonts de dades complementàries:
 
--   **Dades meteorològiques (2021–2025)**, proporcionades pel Servei Meteorològic de Catalunya, que han estat unificades, enriquides amb metadades descriptives i filtrades geogràficament per a les estacions situades dins del municipi de Barcelona. El conjunt resultant conté variables ambientals clau (temperatura, humitat, precipitació, pressió atmosfèrica, etc.) en format net i estandarditzat.
+-   **Dades meteorològiques (1995–2025)**, proporcionades pel Servei Meteorològic de Catalunya, que han estat unificades, enriquides amb metadades descriptives i filtrades geogràficament per a les estacions situades dins del municipi de Barcelona. El conjunt resultant conté variables ambientals clau (temperatura, humitat, precipitació, pressió atmosfèrica, etc.) en format net i estandarditzat.
 
 -   **Dades de contaminants atmosfèrics (1991–2025)**, provinents de l’administració ambiental catalana, que han estat transformades i filtrades per obtenir observacions horàries dels contaminants **NO2, PM10, PM2.5 i O3** a estacions urbanes de Barcelona. Les dades han estat reorganitzades cronològicament i simplificades per facilitar l’anàlisi temporal i espacial.
 
@@ -362,90 +317,3 @@ Gràcies a aquest treball de preprocessament:
 A partir d’aquesta base sòlida, en la següent fase del projecte es podrà dur a terme una anàlisi exploratòria, visualització de sèries temporals, estudi de correlacions i construcció de models explicatius o predictius.
 
 Aquest preprocessament inicial constitueix, doncs, una etapa **clau per garantir la robustesa i el rigor analític** de tot el treball posterior.
-
-```{r}
-# Llegim el CSV complet amb dades de contaminants
-contaminants = read_csv("../data/processed/contaminants/contaminants_bcn_filtrat.csv")
-
-# Filtrar estacions úniques amb la seva localització
-estacions_uniques <- contaminants %>%
-  select(codi_eoi, nom_estacio, tipus_estacio, area_urbana, altitud, latitud, longitud) %>%
-  distinct() %>%
-  group_by(codi_eoi) %>%
-  slice(1) %>%
-  ungroup()
-
-# Exportar a CSV
-write_csv(estacions_uniques, "../data/processed/contaminants/estacions_contaminants_bcn_filtrat.csv")
-
-
-```
-
-```{r}
-# Llegim els fitxers
-contaminants <- read_csv("../data/processed/contaminants/contaminants_bcn_filtrat.csv")
-estacions <- read_csv("../data/processed/contaminants/estacions_contaminants_bcn_filtrat.csv")
-
-# Fem el join pel codi_eoi i actualitzem coordenades
-contaminants_actualitzat <- contaminants %>%
-  select(-latitud, -longitud) %>%  # eliminem coordenades originals
-  left_join(estacions %>% select(codi_eoi, latitud, longitud), by = "codi_eoi")
-
-# Guardem el fitxer actualitzat
-write_csv(contaminants_actualitzat, "../data/processed/contaminants/contaminants_bcn_filtrat_coords_net.csv")
-```
-
-```{r}
-
-# Carreguem el fitxer amb coordenades netes
-contaminants <- read_csv("../data/processed/contaminants/contaminants_bcn_filtrat_coords_net.csv")
-
-
-# Transformem a llarg format per fer agregació horària
-contaminants_llarg <- contaminants %>%
-  pivot_longer(
-    cols = starts_with("h"), 
-    names_to = "hora", 
-    values_to = "valor"
-  ) %>%
-  mutate(
-    hora = as.integer(gsub("h", "", hora))
-  )
-
-# Agregació per codi_eoi, data i contaminant
-contaminants_resum <- contaminants_llarg %>%
-  filter(!is.na(valor)) %>%  # eliminar NA abans d'agrupar
-  group_by(codi_eoi, nom_estacio, data, contaminant, unitats,
-           tipus_estacio, area_urbana, altitud, latitud, longitud) %>%
-  summarise(
-    valor_mitja = mean(valor, na.rm = TRUE),
-    valor_max = max(valor, na.rm = TRUE),
-    valor_min = min(valor, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-# Guardem el fitxer resumit
-write_csv(contaminants_resum, "../data/processed/contaminants/contaminants_bcn_resum_diari.csv")
-```
-
-```{r}
-library(readr)
-library(dplyr)
-
-# 1. Carregar el fitxer
-contaminants <- read_csv("../data/processed/contaminants/contaminants_bcn_filtrat_coords_net.csv")
-
-# 2. Calcular la mitjana, màxim i mínim per fila
-contaminants_enriquit <- contaminants %>%
-  rowwise() %>%
-  mutate(
-    valor_mitja = mean(c_across(h01:h24), na.rm = TRUE),
-    valor_max = max(c_across(h01:h24), na.rm = TRUE),
-    valor_min = min(c_across(h01:h24), na.rm = TRUE)
-  ) %>%
-  ungroup()
-
-# 3. Guardar el nou fitxer
-write_csv(contaminants_enriquit, "../data/processed/contaminants/contaminants_bcn_ample_enriquit.csv")
-
-```
