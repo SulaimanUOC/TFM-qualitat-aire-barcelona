@@ -38,7 +38,7 @@ TFM-qualitat-aire-barcelona/
 ## Visor Web
 
 Accés al visor interactiu publicat a ArcGIS Online:
-[Pendent de fer-lo públic]
+[Pendent de fer-lo públic o publicar un video]
 
 
 ## Repositori
