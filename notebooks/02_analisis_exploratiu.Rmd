@@ -45,7 +45,7 @@ Aquesta anàlisi exploratòria té com a objectiu entendre els patrons temporals
 
 -   **Anàlisi temporal** mitjançant mitjanes diàries i suavitzat amb finestra mòbil (30 dies), amb comparatives per dècades.
 
--   **Comparativa per tipus d’estació** (trànsit vs. urbana de fons).
+-   **Comparativa per tipus d’estació** (trànsit vs. urbanes).
 
 -   **Anàlisi de correlacions** entre contaminants i variables meteorològiques.
 
@@ -57,11 +57,11 @@ Llegim les dades ja preprocessades per meteocat (dades meteorològiques) i conta
 
 ```{r, warning=FALSE, message=FALSE}
 
-df_meteo <- read_csv("../data/processed/meteocat/meteocat_2021_2025_bcn_processed.csv")
+df_meteo <- read_csv("../data/processed/meteocat/meteocat_1995_2025_bcn_processed.csv")
 df_contaminants <- read_csv("../data/processed/contaminants/contaminants_bcn_filtrat.csv")
 ```
 
-Convertim les dades horàries en un format "long" per facilitar l’anàlisi.
+Convertim les dades horàries en un format "llarg" per facilitar l’anàlisi.
 
 ```{r, warning=FALSE, message=FALSE}
 
@@ -202,7 +202,7 @@ ggplot(df_diari %>% filter(contaminant == "O3"),
 
 ```
 
-La gràfica de l’O3 mostra un patró clarament **estacional**, amb valors més alts durant els mesos calorosos i més baixos a l’hivern, un fet esperable atès que l’ozó troposfèric es genera principalment per reaccions fotoquímiques en presència d’irradiació solar. L’evolució al llarg de les diferents dècades indica que, tot i que el cicle anual es manté força constant—amb pics que poden acostar-se als 70–80 µg/m³—no s’observa una variació de fons molt marcada en la mitjana mòbil; més aviat, segueix el mateix patró repetitiu de pujada i davallada en funció de les condicions meteorològiques. Cal destacar que, si bé la concentració d’ozó podria reduir-se lleugerament en determinats períodes a causa de canvis en les emissions de precursores (com òxids de nitrogen i compostos orgànics volàtils), aquesta reducció no és tan notòria en la sèrie temporal, la qual cosa suggereix que, en comparació amb altres contaminants, l’ozó manté un comportament cíclic molt marcat any rere any.
+La gràfica de l’O3 mostra un patró clarament **estacional**, amb valors més alts durant els mesos calorosos i més baixos a l’hivern, un fet esperable atès que l’ozó troposfèric es genera principalment per reaccions fotoquímiques en presència d’irradiació solar. L’evolució al llarg de les diferents dècades indica que, tot i que el cicle anual es manté força constant—amb pics que poden acostar-se als 70–80 µg/m³—no s’observa una variació de molt marcada en la mitjana mòbil; més aviat, segueix el mateix patró repetitiu de pujada i davallada en funció de les condicions meteorològiques. Cal destacar que, si bé la concentració d’ozó podria reduir-se lleugerament en determinats períodes a causa de canvis en les emissions de precursores (com òxids de nitrogen i compostos orgànics volàtils), aquesta reducció no és tan notòria en la sèrie temporal, la qual cosa suggereix que, en comparació amb altres contaminants, l’ozó manté un comportament cíclic molt marcat any rere any.
 
 ```{r, warning=FALSE, message=FALSE}
 
@@ -259,17 +259,17 @@ ggplot(df_tipus, aes(x = datetime, y = valor_mitja, color = tipus)) +
   theme_minimal()
 ```
 
-En aquesta visualització, s’hi comparen les concentracions mitjanes horàries de quatre contaminants (**NO2**, **O3**, **PM10** i **PM2.5**) en funció del **tipus d’estació**—concretament, estacions de fons urbà (**background**) i estacions situades en zones de trànsit (**traffic**)—al llarg del temps. A grans trets, s’hi observen els patrons següents:
+En aquesta visualització, s’hi comparen les concentracions mitjanes horàries de quatre contaminants (**NO2**, **O3**, **PM10** i **PM2.5**) en funció del **tipus d’estació**—concretament, estacions urbanes (**background**) i estacions situades en zones de trànsit (**traffic**)—al llarg del temps. A grans trets, s’hi observen els patrons següents:
 
--   **NO2:** Les estacions de trànsit (línia en color blau/verd) mostren clarament valors més elevats que les de fons urbà (línia en rosat), ja que el diòxid de nitrogen es genera majoritàriament per combustió de vehicles. Tot i que en èpoques recents sembla apreciar-se un lleuger descens, segueix existint una diferència notable entre ambdós tipus d’estació.
+-   **NO2:** Les estacions de trànsit (línia en color blau/verd) mostren clarament valors més elevats que les urbanes (línia en rosat), ja que el diòxid de nitrogen es genera majoritàriament per combustió de vehicles. Tot i que en èpoques recents sembla apreciar-se un lleuger descens, segueix existint una diferència notable entre ambdós tipus d’estació.
 
--   **O3:** De manera contrària, en molts intervals de temps es detecten concentracions més altes a les estacions de fons urbà que a les de trànsit. Això succeeix perquè, al costat de vies amb molt trànsit, els òxids de nitrogen (NO, NO2) poden “titrar” (destruir) part de l’ozó. Per tant, en zones més allunyades de les fonts de NO, els nivells d’O3 tendeixen a ser superiors.
+-   **O3:** De manera contrària, en molts intervals de temps es detecten concentracions més altes a les estacions urbanes que a les de trànsit. Això succeeix perquè, al costat de vies amb molt trànsit, els òxids de nitrogen (NO, NO2) poden eliminar part de l’ozó. Per tant, en zones més allunyades de les fonts de NO, els nivells d’O3 tendeixen a ser superiors.
 
 -   **PM10:** Les estacions de trànsit també solen presentar valors més alts que les de fons, reflectint la contribució del trànsit rodat (desgast de pneumàtics, frenades, pols en suspensió) a l’augment de partícules de mida superior a 10 µm. En dècades recents es pot observar una lleugera millora, però encara es mantenen pics puntuals.
 
 -   **PM2.5:** Tot i que hi ha menys dades en algunes franges de temps, en general també es perceben concentracions més elevades a la zona de trànsit que a la de fons. Les partícules fines (inferiors a 2,5 µm) tenen un impacte significatiu en la salut, i l’activitat del trànsit n’és una font rellevant, juntament amb altres processos de combustió.
 
-En definitiva, la comparativa evidencia que les estacions de **trànsit** registren concentracions clarament més elevades de contaminants primaris (NO2, partícules) degut a l’emissió directa dels vehicles, mentre que les estacions de **fons urbà** sovint mostren nivells relativament menors per a aquests contaminants però poden presentar concentracions més altes d’**O3**, a causa dels processos fotoquímics i l’efecte de titració del NO en zones de trànsit. Aquestes diferències remarquen la necessitat de desplegar estratègies ambientals i de mobilitat que tinguin en compte tant la contaminació local (trànsit) com la de caràcter més difús (ozó, partícules fines), per tal de millorar globalment la qualitat de l’aire urbà.
+En definitiva, la comparativa evidencia que les estacions de **trànsit** registren concentracions clarament més elevades de contaminants primaris (NO2, partícules) degut a l’emissió directa dels vehicles, mentre que les estacions de **urbanes** sovint mostren nivells relativament menors per a aquests contaminants però poden presentar concentracions més altes d’**O3**, a causa dels processos fotoquímics i l’efecte de neutralització del NO en zones de trànsit. Aquestes diferències remarquen la necessitat de desplegar estratègies ambientals i de mobilitat que tinguin en compte tant la contaminació local (trànsit) com la de caràcter més difús (ozó, partícules fines), per tal de millorar globalment la qualitat de l’aire urbà.
 
 ## 5. Correlacions entre contaminants i variables meteorològiques
 
@@ -344,9 +344,9 @@ La matriu de correlacions mostra de manera sintètica les relacions entre variab
 
     -   **PM10 i PM2.5** tenen una correlació positiva elevada (valor al voltant de 0,7), fet que indica que sovint augmenten o disminueixen plegades.
 
-    -   **NO2 i PM10** també presenten una correlació positiva moderada (entorn de 0,4), cosa coherent amb el trànsit rodat com a font comuna d’aquests contaminants.
+    -   **NO2 i PM10** també presenten una correlació positiva moderada (entorn de 0,5), cosa coherent amb el trànsit rodat com a font comuna d’aquests contaminants.
 
-    -   **O3** mostra correlacions negatives amb NO2, PM10 i PM2.5 (entorn de -0,3), consistent amb el fenomen de “titració” de l’ozó per l’NO i amb el fet que, en condicions de molt trànsit, tendeix a haver-hi menys O3 a prop de les fonts emissives.
+    -   **O3** mostra correlacions negatives amb NO2, PM10 i PM2.5 (entorn de -0,4), consistent amb el fenomen d'eliminació de l’ozó per l’NO i amb el fet que, en condicions de molt trànsit, tendeix a haver-hi menys O3 a prop de les fonts emissives.
 
 2.  **Influència de la temperatura i la radiació solar:**
 
@@ -356,9 +356,9 @@ La matriu de correlacions mostra de manera sintètica les relacions entre variab
 
 3.  **Paper de la precipitació i la humitat:**
 
-    -   La **precipitació** (PPT) i les variables d’humitat (HRN, HRX) mostren correlacions negatives amb la majoria de contaminants. Això és conseqüència de l’efecte de rentatge (washout) que redueix la concentració de partícules i gasos contaminants en dies de pluja o humitat elevada.
+    -   La **precipitació** (PPT) i les variables d’humitat (HRN, HRX) mostren correlacions negatives amb la majoria de contaminants. Això és conseqüència de l’efecte de rentatge que redueix la concentració de partícules i gasos contaminants en dies de pluja o humitat elevada.
 
-    -   Quan plou o la humitat és alta, els contaminants tendeixen a deposar-se més ràpidament, fet que ajuda a netejar l’aire.
+    -   Quan plou o la humitat és alta, els contaminants tendeixen a caure més ràpidament, fet que ajuda a netejar l’aire.
 
 4.  **Vent i dispersió:**
 
@@ -454,11 +454,11 @@ ggplot(resum_estacio, aes(x = reorder(nom_estacio, mitjana), y = mitjana, fill =
 
 En aquesta gràfica s’hi representen les concentracions mitjanes dels quatre principals contaminants atmosfèrics (**NO2**, **O3**, **PM10** i **PM2.5**) per diverses estacions de mesurament a Barcelona. Alguns punts clau que s’hi poden observar:
 
-1.  **Diferències entre estacions de trànsit i de fons urbà:**
+1.  **Diferències entre estacions de trànsit i urbanes:**
 
-    -   Les estacions ubicades en zones de trànsit intens (com Eixample, Sants, etc.) presenten nivells de **NO2** relativament més elevats. Aquesta dada reflecteix l’origen principalment vehicular d’aquest contaminant.
+    -   Les estacions ubicades en zones de trànsit intens presenten nivells de **NO2** relativament més elevats. Aquesta dada reflecteix l’origen principalment vehicular d’aquest contaminant.
 
-    -   Les estacions més allunyades del trànsit o situades en zones més altes (com Observatori Fabra) mostren menys acumulació de NO2 i, en canvi, tendeixen a tenir valors més alts d’**O3**, ja que hi ha menys titració de l’ozó per òxids de nitrogen.
+    -   Les estacions més allunyades del trànsit o situades en zones més altes (com Observatori Fabra) mostren menys acumulació de NO2 i, en canvi, tendeixen a tenir valors més alts d’**O3**, ja que hi ha menys eliminació de l’ozó per òxids de nitrogen.
 
 2.  **O3 més alt en estacions d’altitud o allunyades del trànsit:**
 
@@ -474,7 +474,7 @@ En aquesta gràfica s’hi representen les concentracions mitjanes dels quatre p
 
     -   Algunes estacions situades en zones cèntriques o amb més densitat de població (com Sants, Eixample, Poblenou) tendeixen a registrar nivells més alts de NO2 i PM10, a causa de la concentració de trànsit i activitat urbana.
 
-    -   D’altres, com Palau Reial o Sant Gervasi, tot i que també registren NO2, poden mostrar un perfil mixt (fons urbà / trànsit), reflectint la variabilitat urbana de Barcelona.
+    -   D’altres, com Palau Reial o Sant Gervasi, tot i que també registren NO2, poden mostrar un perfil mixt (urbà/ trànsit), reflectint la variabilitat urbana de Barcelona.
 
 ## 7. Conclusions generals
 
@@ -490,7 +490,7 @@ S’ha observat una clara **estacionalitat** en la concentració de contaminants
 
 **3. Diferències entre tipus d’estacions:**\
 
-Les **estacions de trànsit** registren sistemàticament nivells més elevats de contaminants primaris com NO2, PM10 i PM2.5, mentre que les **estacions de fons urbà** mostren valors més alts d’ozó a causa del fenomen de titració i l’absència d’emissions directes de NO. Aquesta divergència posa de manifest la necessitat de tenir en compte la **tipologia d’estació** per a la interpretació adequada dels nivells de contaminació.
+Les **estacions de trànsit** registren sistemàticament nivells més elevats de contaminants primaris com NO2, PM10 i PM2.5, mentre que les **estacions urbanes** mostren valors més alts d’ozó a causa de l''eliminació i l’absència d’emissions directes de NO. Aquesta divergència posa de manifest la necessitat de tenir en compte la **tipologia d’estació** per a la interpretació adequada dels nivells de contaminació.
 
 **4. Relació amb les condicions meteorològiques:**\
 
@@ -502,4 +502,4 @@ La identificació dels **dies amb valors extrems** permet delimitar episodis pun
 
 **6. Variabilitat geogràfica dins de la ciutat:**\
 
-Les anàlisis per estació mostren una **variabilitat considerable entre barris**, amb concentracions més elevades en zones densament urbanitzades i de trànsit intens com l’Eixample o Sants. En canvi, estacions com l’Observatori Fabra o Sant Gervasi presenten perfils diferenciats, més propis de zones amb menys activitat emissora directa.
+Les anàlisis per estació mostren una **variabilitat considerable entre barris**, amb concentracions més elevades en zones densament urbanitzades i de trànsit intens. En canvi, estacions com l’Observatori Fabra presenten perfils diferenciats, més propis de zones amb menys activitat emissora directa.
