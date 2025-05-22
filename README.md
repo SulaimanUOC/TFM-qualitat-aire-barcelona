@@ -22,7 +22,8 @@ TFM-qualitat-aire-barcelona/
 │       └── meteorologia/        # Dades meteorològiques processades
 ├── notebooks/
 │   ├── 01_preprocessament_dades_qualitat_aire_Barcelona.Rmd    
-│   └── 02_analisis_exploratiu.Rmd
+│   ├── 02_analisis_exploratiu.Rmd
+│   └── 03_model_predictiu_contaminant_NO2.Rmd              
 ├── docs/
 │   ├── entregables/                 # Entregables del TFM
 │   ├── notebooks_pdf/               # Versions PDF dels notebooks RMarkdown
@@ -39,7 +40,7 @@ TFM-qualitat-aire-barcelona/
 ## Visor Web
 
 Accés al visor interactiu publicat a ArcGIS Online:
-[Pendent de fer-lo públic o publicar un video]
+[Pendent de fer-lo públic]
 
 
 ## Repositori
