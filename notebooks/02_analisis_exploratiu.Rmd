@@ -115,21 +115,26 @@ Visualitzem la distribució de les concentracions per cada contaminant mitjança
 
 ```{r, warning=FALSE, message=FALSE}
 
+# Primer calculem la mediana per contaminant
+medians <- contaminants_long %>%
+  group_by(contaminant) %>%
+  summarise(mediana = median(valor, na.rm = TRUE))
+
+# Afegim la línia per a cada faceta amb les seves pròpies dades
 ggplot(contaminants_long, aes(x = valor)) +
   geom_histogram(bins = 50, fill = "#0072B2", color = "white", alpha = 0.8) +
-  # Afegim una línia vertical per la mediana de cada grup (cada facet rep la seva pròpia mediana)
-  geom_vline(aes(xintercept = median(valor, na.rm = TRUE)), 
+  geom_vline(data = medians, aes(xintercept = mediana), 
              color = "red", linetype = "dashed", linewidth = 0.8) +
   facet_wrap(~ contaminant, scales = "free") +
   labs(
     title = "Distribució horària dels contaminants",
     subtitle = "Línia vermella indica la mediana per cada contaminant",
     x = "Concentració (µg/m³)",
-    y = "Freqüència",
+    y = "Freqüència"
   ) +
   theme_minimal(base_size = 14) +
   theme(
-    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.title = element_text(face = "bold",hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5),
     panel.grid.major = element_line(color = "grey90"),
     panel.grid.minor = element_line(color = "grey95")
@@ -170,14 +175,14 @@ df_diari <- contaminants_long %>%
 
 ```{r, warning=FALSE, message=FALSE}
 
-# Evolució per NO2 amb línia de referència de 40 µg/m³ (OMS)
+# Evolució per NO2 amb línia de referència de 40 µg/m³ UE
 ggplot(df_diari %>% filter(contaminant == "NO2"),
        aes(x = data, y = valor_suavitzat)) +
   geom_line(color = "#E41A1C", size = 0.4) +
   geom_hline(yintercept = 40, linetype = "dashed", color = "black", size = 0.3) +
   facet_wrap(~decada, scales = "free_x") +
   labs(title = "Evolució de NO2 per dècades",
-       subtitle = "Mitjana mòbil (30 dies) amb línia de referència de l'OMS (40 µg/m³)",
+       subtitle = "Mitjana mòbil (30 dies) amb límit UE (40 µg/m³)",
        x = "Data", y = "NO2 (µg/m³)") +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold", hjust = 0.5))
@@ -206,14 +211,14 @@ La gràfica de l’O3 mostra un patró clarament **estacional**, amb valors més
 
 ```{r, warning=FALSE, message=FALSE}
 
-# Evolució per PM10 amb límit recomanat de 40 µg/m³
+# Evolució per PM10 amb límit UE de 40 µg/m³
 ggplot(df_diari %>% filter(contaminant == "PM10"),
        aes(x = data, y = valor_suavitzat)) +
   geom_line(color = "#00CED1", size = 0.4) +
   geom_hline(yintercept = 40, linetype = "dashed", color = "black", size = 0.3) +
   facet_wrap(~decada, scales = "free_x") +
   labs(title = "Evolució de PM10 per dècades",
-       subtitle = "Mitjana mòbil (30 dies) amb límit recomanat (40 µg/m³)",
+       subtitle = "Mitjana mòbil (30 dies) amb límit UE (40 µg/m³)",
        x = "Data", y = "PM10 (µg/m³)") +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold", hjust = 0.5))
@@ -223,21 +228,21 @@ La gràfica, que mostra l’evolució de PM10 en mitjana mòbil de 30 dies al ll
 
 ```{r, warning=FALSE, message=FALSE}
 
-# Evolució per PM2.5 amb límit recomanat de 15 µg/m³
+# Evolució per PM2.5 amb límit UE de 25 µg/m³
 ggplot(df_diari %>% filter(contaminant == "PM2.5"),
        aes(x = data, y = valor_suavitzat)) +
   geom_line(color = "#984EA3", size = 0.4) +
-  geom_hline(yintercept = 15, linetype = "dashed", color = "black", size = 0.3) +
+  geom_hline(yintercept = 25, linetype = "dashed", color = "black", size = 0.3) +
   facet_wrap(~decada, scales = "free_x") +
   labs(title = "Evolució de PM2.5 per dècades",
-       subtitle = "Mitjana mòbil (30 dies) amb límit recomanat (15 µg/m³)",
+       subtitle = "Mitjana mòbil (30 dies) amb límit UE (25 µg/m³)",
        x = "Data", y = "PM2.5 (µg/m³)") +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold", hjust = 0.5))
 
 ```
 
-La gràfica reflecteix l’evolució de les partícules fines **PM2.5**, mesurades en mitjana mòbil de 30 dies, i compara els nivells observats amb el valor recomanat (15 µg/m³) en diferents dècades. Al voltant de 2004–2005, s’observen pics que superen clarament el llindar de 15 µg/m³, assolint valors superiors a 20–25 µg/m³, fet que indica episodis de contaminació elevada. En canvi, en períodes més recents (cap al 2020 en endavant), la majoria de registres es mantenen per sota o prop de la línia de referència, suggerint una possible millora en la qualitat de l’aire. Tot i això, encara s’aprecien pics puntuals que s’aproximen als 15 µg/m³, la qual cosa subratlla la necessitat de continuar vigilant i aplicant mesures de control per assegurar que els nivells de PM2.5 romanguin dins de valors saludables.
+La gràfica mostra l’evolució de PM2.5 amb mitjana mòbil de 30 dies i el límit legal europeu (25 µg/m³). Es pot veure claramen que l’any 2004-2005 s’observen superacions clares del llindar, mentre que a partir de 2020 els nivells es mantenen generalment per sota.
 
 ## 4. Comparativa per tipus d’estació: trànsit vs urbana
 
