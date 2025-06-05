@@ -29,8 +29,6 @@ TFM-qualitat-aire-barcelona/
 │   ├── notebooks_pdf/               # Versions PDF dels notebooks RMarkdown
 │   ├── captures_visor/              # Captures de pantalla del visor fet en AGOL Dashboard
 │   └── presentacio/                 # Diapositives per a la defensa
-├── visor/
-│   └── estructura_dashboard.md  # Esquema i configuració del visor a ArcGIS Online
 ├── planificacio_gantt.pdf       # Planificació del projecte
 ├── README.md                    # Descripció del projecte
 └── .gitignore 
