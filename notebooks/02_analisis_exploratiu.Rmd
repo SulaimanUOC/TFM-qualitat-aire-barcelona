@@ -99,13 +99,56 @@ contaminants_long %>%
 
 ```
 
+S'ha detectat que els valors màxims de PM10 reals, eliminem els outliers d'aquestes dades errónies aportades per les estacions de mesura:
+
+```{r, warning=FALSE, message=FALSE}
+
+# Calculem el rang interquartílic (IQR) per a PM10
+pm10_limits <- contaminants_long %>%
+  filter(contaminant == "PM10") %>%
+  summarise(
+    q1 = quantile(valor, 0.25),
+    q3 = quantile(valor, 0.75)
+  ) %>%
+  mutate(
+    rang_interquartilic = q3 - q1,
+    límit_inferior = q1 - 1.5 * rang_interquartilic,
+    límit_superior = q3 + 1.5 * rang_interquartilic
+  )
+
+# Extraiem els límits
+límit_inf <- pm10_limits$límit_inferior
+límit_sup <- pm10_limits$límit_superior
+
+# Eliminem només els outliers de PM10, la resta de contaminants es mantenen
+contaminants_long <- contaminants_long %>%
+  filter(
+    contaminant != "PM10" |
+      (valor >= límit_inf & valor <= límit_sup)
+  )
+
+```
+
+Tornem a calcular les estadístiques bàsiques:
+
+```{r, warning=FALSE, message=FALSE}
+contaminants_long %>%
+  group_by(contaminant) %>%
+  summarise(
+    n = n(), mínim = min(valor), q1 = quantile(valor, 0.25),
+    mediana = median(valor), mitjana = mean(valor),
+    q3 = quantile(valor, 0.75), màxim = max(valor), "NA" = sum(is.na(valor))
+  ) %>%
+  knitr::kable(digits = 2)
+```
+
 **Observació:**
 
 -   **NO2:** Amb 1.538.632 observacions, la mediana és de 36 µg/m³ i la mitjana de 41,37 µg/m³, indicant una distribució asimètrica amb episodis d’alta contaminació (valor màxim de 483). Aquesta variabilitat es relaciona amb l’emissió de NO2 principalment pel trànsit i condicions atmosfèriques desfavorables (p.e. inversió tèrmica).
 
 -   **O3:** Amb 1.205.738 registres, la proximitat entre mediana (41 µg/m³) i mitjana (42,44 µg/m³) suggereix una distribució equilibrada. L’ozó a nivell del sòl es forma en condicions d’alta irradiació solar, habituals en els mesos d’estiu, i pot afectar la salut en períodes d’intensa exposició.
 
--   **PM10:** Amb 680.474 mesures, la mediana és de 23 µg/m³ i la mitjana de 28,30 µg/m³. Tot i que la majoria de les concentracions són moderades, s’observa un valor màxim extrem de 1.608 µg/m³, indicant episodis puntuals amb alta concentració que poden tenir un fort impacte en la salut respiratòria.
+-   **PM10:** Amb 644.985 mesures, la mediana és de 22 µg/m³ i la mitjana de 24,68 µg/m³. Tot i que la majoria de les concentracions són moderades, s’observa un valor màxim extrem de 65 µg/m³, indicant episodis puntuals amb alta concentració, però no és significatiu en comparació a la resta de contaminants.
 
 -   **PM2.5:** Amb 55.076 observacions, la mediana és de 9 µg/m³ i la mitjana de 11,08 µg/m³, amb episodis d’alta concentració (valor màxim de 180). Aquestes partícules fines són especialment perilloses per la seva capacitat de penetrar profundament en els pulmons i fins i tot en el sistema sanguini.
 
@@ -144,13 +187,7 @@ ggplot(contaminants_long, aes(x = valor)) +
 
 La gràfica mostra la **distribució de les concentracions** dels principals contaminants atmosfèrics: **NO2**, **O3**, **PM10** i **PM2.5**, expressades en µg/m3.
 
--   Els contaminants **NO2** i **PM10** mostren distribucions clarament asimètriques, amb episodis de concentracions altes que enerven la mitjana i aporten una cua dreta llarga.
-
--   En **O3**, l’acumulació de valors és més concentrada al voltant de la mediana, tot i que existeix un rang ampli fins a 200–300 µg/m3.
-
--   **PM2.5** tendeix a concentrar la majoria de registres al voltant de valors relativament baixos, però no es descarten esdeveniments on les partícules fines pugen per sobre de 100 µg/m3.
-
-En resum, la gràfica mostra que cada contaminant té la seva pròpia dinàmica i rang de variabilitat. La mediana (línia vermella) ajuda a veure on es localitza la major part de les observacions, i la cua a la dreta en NO2, PM10 i PM2.5 ens indica que, tot i que la majoria de registres no són excessivament alts, hi ha episodis concrets on les concentracions pugen substancialment, fet important per avaluar riscos de salut i planificar mesures de mitigació.
+La mediana (línia vermella) ajuda a veure on es localitza la major part de les observacions, i la cua a la dreta en NO2, PM10 i PM2.5 ens indica que, tot i que la majoria de registres no són excessivament alts, hi ha episodis concrets on les concentracions pugen significativament.
 
 ## 3. Evolució temporal: mitjanes diàries i comparativa per dècades
 
@@ -270,9 +307,9 @@ En aquesta visualització, s’hi comparen les concentracions mitjanes horàries
 
 -   **O3:** De manera contrària, en molts intervals de temps es detecten concentracions més altes a les estacions urbanes que a les de trànsit. Això succeeix perquè, al costat de vies amb molt trànsit, els òxids de nitrogen (NO, NO2) poden eliminar part de l’ozó. Per tant, en zones més allunyades de les fonts de NO, els nivells d’O3 tendeixen a ser superiors.
 
--   **PM10:** Les estacions de trànsit també solen presentar valors més alts que les de fons, reflectint la contribució del trànsit rodat (desgast de pneumàtics, frenades, pols en suspensió) a l’augment de partícules de mida superior a 10 µm. En dècades recents es pot observar una lleugera millora, però encara es mantenen pics puntuals.
+-   **PM10:** Les estacions de trànsit també solen presentar valors més alts que les urbanes, reflectint la contribució del trànsit rodat (desgast de pneumàtics, frenades, pols en suspensió) a l’augment de partícules de mida superior a 10 µm. En dècades recents es pot observar una lleugera millora, però encara es mantenen pics puntuals.
 
--   **PM2.5:** Tot i que hi ha menys dades en algunes franges de temps, en general també es perceben concentracions més elevades a la zona de trànsit que a la de fons. Les partícules fines (inferiors a 2,5 µm) tenen un impacte significatiu en la salut, i l’activitat del trànsit n’és una font rellevant, juntament amb altres processos de combustió.
+-   **PM2.5:** Tot i que hi ha menys dades en algunes franges de temps, en general també es perceben concentracions més elevades a la zona de trànsit que a la urbana. Les partícules fines (inferiors a 2,5 µm) tenen un impacte significatiu en la salut, i l’activitat del trànsit n’és una font rellevant, juntament amb altres processos de combustió.
 
 En definitiva, la comparativa evidencia que les estacions de **trànsit** registren concentracions clarament més elevades de contaminants primaris (NO2, partícules) degut a l’emissió directa dels vehicles, mentre que les estacions de **urbanes** sovint mostren nivells relativament menors per a aquests contaminants però poden presentar concentracions més altes d’**O3**, a causa dels processos fotoquímics i l’efecte de neutralització del NO en zones de trànsit. Aquestes diferències remarquen la necessitat de desplegar estratègies ambientals i de mobilitat que tinguin en compte tant la contaminació local (trànsit) com la de caràcter més difús (ozó, partícules fines), per tal de millorar globalment la qualitat de l’aire urbà.
 
