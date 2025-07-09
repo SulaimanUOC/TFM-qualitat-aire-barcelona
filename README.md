@@ -38,7 +38,6 @@ TFM-qualitat-aire-barcelona/
 ## Visor Web
 
 Accés al visor interactiu publicat a ArcGIS Online:
-[Obrir visor](https://barcelonatech.maps.arcgis.com/apps/dashboards/6e81c447ca5d44378dee401cb13c9cb5)
 
 
 ## Repositori
